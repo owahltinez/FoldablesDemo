@@ -1,18 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<!-- https://developer.android.com/guide/topics/ui/layout/twopane -->
+<androidx.slidingpanelayout.widget.SlidingPaneLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/sliding_pane_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    android:layout_height="match_parent">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    <!-- The first child view becomes the left pane. When the combined
+         desired width (expressed using android:layout_width) would
+         not fit on-screen at once, the right pane is permitted to
+         overlap the left. -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/list_pane"
+        android:layout_width="280dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="start" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <!-- The second child becomes the right (content) pane. In this
+         example, android:layout_weight is used to expand this detail pane
+         to consume leftover available space when the
+         the entire window is wide enough to fit both the left and right pane.-->
+    <FrameLayout
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/detail_container"
+        android:layout_width="300dp"
+        android:layout_weight="1"
+        android:layout_height="match_parent"
+        android:background="@color/black"
+        tools:context=".SelectedItemFragment">
+        <TextView
+            android:id="@+id/item_text"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:textColor="@color/white"
+            android:layout_margin="16dp" />
+    </FrameLayout>
+</androidx.slidingpanelayout.widget.SlidingPaneLayout>
