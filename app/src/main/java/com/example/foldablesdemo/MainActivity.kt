@@ -44,6 +44,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    @Synchronized
     private fun updateDisplay(calculator: WindowMetricsCalculator) {
         // Build the output text incrementally
         val sb = StringBuilder()
