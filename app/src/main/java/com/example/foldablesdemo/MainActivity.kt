@@ -1,24 +1,20 @@
 package com.example.foldablesdemo
 
-import android.annotation.SuppressLint
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.widget.TextView
+import androidx.window.java.layout.WindowInfoRepositoryCallbackAdapter
 import androidx.window.layout.WindowInfoRepository.Companion.windowInfoRepository
 import androidx.window.layout.WindowLayoutInfo
 import androidx.window.layout.WindowMetrics
 import androidx.window.layout.WindowMetricsCalculator
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
+import java.util.concurrent.Executors
 
 class MainActivity : AppCompatActivity() {
     lateinit var textView: TextView
     private var currentMetrics: WindowMetrics? = null
     private var layoutInfo: WindowLayoutInfo? = null
 
-    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -27,24 +23,26 @@ class MainActivity : AppCompatActivity() {
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
+
+        // Initialize window-related objects
         val wmInfo = windowInfoRepository()
         val calculator = WindowMetricsCalculator.getOrCreate()
 
-        GlobalScope.launch {
-            wmInfo.currentWindowMetrics.collect {
-                currentMetrics = it
-                updateDisplay(calculator)
-            }
+        // Use a single-threaded executor for the callbacks
+        val executor = Executors.newSingleThreadExecutor()
+
+        // Register callbacks for window property changes
+        val adapter = WindowInfoRepositoryCallbackAdapter(wmInfo)
+        adapter.addCurrentWindowMetricsListener(executor) {
+            currentMetrics = it
+            updateDisplay(calculator)
         }
-        GlobalScope.launch {
-            wmInfo.windowLayoutInfo.collect {
-                layoutInfo = it
-                updateDisplay(calculator)
-            }
+        adapter.addWindowLayoutInfoListener(executor) {
+            layoutInfo = it
+            updateDisplay(calculator)
         }
     }
 
-    @Synchronized
     private fun updateDisplay(calculator: WindowMetricsCalculator) {
         // Build the output text incrementally
         val sb = StringBuilder()
